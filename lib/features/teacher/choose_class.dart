@@ -1,52 +1,60 @@
 import 'package:flutter/material.dart';
-import 'attendance_screen.dart';
-import 'teacher_add_assignments_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../../core/widgets/app_footer.dart';
 
 class ChooseClassScreen extends StatelessWidget {
-  final String? nextScreen;
+  final String teacherUid;
+  final String schoolId;
 
   const ChooseClassScreen({
     super.key,
-    this.nextScreen,
+    required this.teacherUid,
+    required this.schoolId,
   });
 
   @override
   Widget build(BuildContext context) {
-    final classes = ['1A', '1B', '2A', '2B'];
-
     return Scaffold(
       appBar: AppBar(title: const Text('Choose Class')),
-      body: ListView.builder(
-        itemCount: classes.length,
-        itemBuilder: (context, index) {
-          final classId = classes[index];
-
-          return Card(
-            margin: const EdgeInsets.all(12),
-            child: ListTile(
-              title: Text('Class $classId'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                if (nextScreen == 'attendance') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AttendanceScreen(classId: classId),
-                    ),
-                  );
-                } else if (nextScreen == 'assignment') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          TeacherAddAssignmentScreen(classId: classId),
-                    ),
-                  );
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('classes')
+                  .where('schoolId', isEqualTo: schoolId)
+                  .where('teacherAuthUid', isEqualTo: teacherUid)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
                 }
+
+                if (snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text('No classes found'));
+                }
+
+                return ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, i) {
+                    final doc = snapshot.data!.docs[i];
+                    final className = doc['name'] ?? doc.id;
+
+                    return ListTile(
+                      title: Text(className),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.pop(context, doc.id);
+                      },
+                    );
+                  },
+                );
               },
             ),
-          );
-        },
+          ),
+          const AppFooter(lightBackground: true),
+        ],
       ),
     );
   }

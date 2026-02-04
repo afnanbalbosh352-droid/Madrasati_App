@@ -1,245 +1,269 @@
-// ======================= TEACHER DASHBOARD =======================
-// lib/features/dashboard/teacher_dashboard_screen.dart
-
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../data/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:madrasati_app/core/widgets/app_footer.dart';
+import 'package:madrasati_app/features/dahboard/student_dashboard_tile.dart';
 
-class TeacherDashboardScreen extends StatefulWidget {
+class TeacherDashboardScreen extends StatelessWidget {
   const TeacherDashboardScreen({super.key});
 
-  @override
-  State<TeacherDashboardScreen> createState() =>
-      _TeacherDashboardScreenState();
-}
-
-class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
-  String? teacherName;
-  bool loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTeacher();
-  }
-
-  Future<void> _loadTeacher() async {
-    final uid = AuthService().currentUserId;
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
-
-    setState(() {
-      teacherName = doc['fullName'];
-      loading = false;
-    });
-  }
+  static const Color _primary = Color(0xFF6C8CF5);
+  static const Color _primaryDark = Color(0xFF4E6FE3);
+  static const Color _background = Color(0xFFF4F7FF);
+  static const Color _textMuted = Color(0xFF6C7A92);
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+    final name = FirebaseAuth.instance.currentUser?.displayName ?? 'Mrs. Hanan Saleem';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
+      backgroundColor: _background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F2548),
         elevation: 0,
-        title: const Text('Dashboard'),
+        backgroundColor: _primary,
+        title: const Text(
+          'Dashboard',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none),
+            icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
-          )
+          ),
+          const SizedBox(width: 8),
         ],
       ),
-      drawer: const _TeacherDrawer(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      drawer: _buildDrawer(context, name),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [_primary, _primaryDark],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(28),
+                  bottomRight: Radius.circular(28),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Welcome back',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Teacher',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.85),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.92,
+              ),
+              delegate: SliverChildListDelegate([
+                StudentDashboardTile(
+                  title: 'Attendance',
+                  icon: Icons.fact_check_rounded,
+                  enabled: true,
+                  onTap: () => Navigator.pushNamed(context, '/teacherAttendance'),
+                ),
+                StudentDashboardTile(
+                  title: 'Add Assignments',
+                  icon: Icons.assignment_outlined,
+                  enabled: true,
+                  onTap: () => Navigator.pushNamed(context, '/teacherAddAssignment'),
+                ),
+                StudentDashboardTile(
+                  title: 'My Assignments',
+                  icon: Icons.assignment_rounded,
+                  enabled: true,
+                  onTap: () => Navigator.pushNamed(context, '/teacherAssignments'),
+                ),
+                StudentDashboardTile(
+                  title: 'Messages',
+                  icon: Icons.chat_bubble_outline_rounded,
+                  enabled: false,
+                  onTap: () => _showComingSoon(context),
+                ),
+                StudentDashboardTile(
+                  title: 'Grades',
+                  icon: Icons.star_border_rounded,
+                  enabled: false,
+                  onTap: () => _showComingSoon(context),
+                ),
+                StudentDashboardTile(
+                  title: 'Weekly Lessons',
+                  icon: Icons.schedule_rounded,
+                  enabled: false,
+                  onTap: () => _showComingSoon(context),
+                ),
+                StudentDashboardTile(
+                  title: 'Class Schedule',
+                  icon: Icons.calendar_month_rounded,
+                  enabled: false,
+                  onTap: () => _showComingSoon(context),
+                ),
+              ]),
+            ),
+          ),
+          const SliverToBoxAdapter(child: AppFooter(lightBackground: true)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context, String name) {
+    return Drawer(
+      child: Column(
         children: [
-          // Header
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+            padding: const EdgeInsets.only(top: 48, bottom: 24, left: 24, right: 24),
             decoration: const BoxDecoration(
-              color: Color(0xFF0F2548),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(28),
-                bottomRight: Radius.circular(28),
+              gradient: LinearGradient(
+                colors: [_primary, _primaryDark],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Container(
-                      height: 52,
-                      width: 52,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Icon(Icons.school,
-                          color: Colors.white, size: 30),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Madrasati',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    )
-                  ],
+                CircleAvatar(
+                  radius: 42,
+                  backgroundColor: Colors.white.withOpacity(0.25),
+                  backgroundImage: const AssetImage('assets/images/teacherprofile.png'),
                 ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Welcome Back!',
-                  style: TextStyle(color: Colors.white70),
-                ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 14),
                 Text(
-                  teacherName ?? '',
+                  name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Teacher',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 14,
                   ),
                 ),
               ],
             ),
           ),
-
-          // Grid
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                children: const [
-                  _DashboardTile(
-                      icon: Icons.event,
-                      label: 'Activities',
-                      color: Colors.amber),
-                  _DashboardTile(
-                      icon: Icons.fact_check,
-                      label: 'Attendance',
-                      color: Colors.blue),
-                  _DashboardTile(
-                      icon: Icons.grade,
-                      label: 'Grades',
-                      color: Colors.green),
-                  _DashboardTile(
-                      icon: Icons.chat,
-                      label: 'Messages',
-                      color: Colors.cyan),
-                  _DashboardTile(
-                      icon: Icons.assessment,
-                      label: 'Monthly Assessment',
-                      color: Colors.pink),
-                  _DashboardTile(
-                      icon: Icons.calendar_today,
-                      label: 'Class Schedule',
-                      color: Colors.redAccent),
-                  _DashboardTile(
-                      icon: Icons.assignment,
-                      label: 'Assignments',
-                      color: Colors.orange),
-                  _DashboardTile(
-                      icon: Icons.menu_book,
-                      label: 'Week Lessons',
-                      color: Colors.purple),
-                ],
-              ),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              children: [
+                _drawerItem(context, Icons.person_outline_rounded, 'Profile'),
+                _drawerItem(context, Icons.settings_outlined, 'Settings'),
+                _drawerItem(context, Icons.school_rounded, 'My Classes'),
+                _drawerItem(context, Icons.notifications_outlined, 'Notification Settings'),
+                _drawerItem(context, Icons.help_outline_rounded, 'Help Center'),
+                _drawerItem(context, Icons.info_outline_rounded, 'About App'),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: _drawerItem(
+              context,
+              Icons.logout_rounded,
+              'Logout',
+              color: Colors.red,
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                if (!context.mounted) return;
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/roleSelection',
+                  (route) => false,
+                );
+              },
             ),
           ),
         ],
       ),
     );
   }
-}
 
-class _TeacherDrawer extends StatelessWidget {
-  const _TeacherDrawer();
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: Column(
-        children: const [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Color(0xFF0F2548)),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Text(
-                'Teacher Menu',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-          ),
-          ListTile(leading: Icon(Icons.person), title: Text('Profile')),
-          ListTile(leading: Icon(Icons.school), title: Text('My Classes')),
-          ListTile(
-              leading: Icon(Icons.fact_check), title: Text('Attendance')),
-          Spacer(),
-          ListTile(leading: Icon(Icons.logout), title: Text('Logout')),
-        ],
+  Widget _drawerItem(
+    BuildContext context,
+    IconData icon,
+    String title, {
+    Color? color,
+    VoidCallback? onTap,
+  }) {
+    final isRed = color == Colors.red;
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: color ?? _textMuted,
+        size: 22,
       ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: color ?? const Color(0xFF0B1930),
+          fontWeight: isRed ? FontWeight.w500 : FontWeight.w400,
+        ),
+      ),
+      onTap: onTap ?? () => _showComingSoon(context),
     );
   }
-}
 
-class _DashboardTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const _DashboardTile({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 6),
-          )
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: color.withOpacity(0.15),
-            child: Icon(icon, color: color, size: 30),
+  void _showComingSoon(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Coming Soon'),
+        content: const Text('This feature will be available later.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('OK'),
           ),
-          const SizedBox(height: 14),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          )
         ],
       ),
     );

@@ -1,90 +1,78 @@
 import 'package:flutter/material.dart';
-import 'package:madrasati_app/core/routes/app_routes.dart';
-import 'package:madrasati_app/core/theme/app_colors.dart';
+
+import '../../core/widgets/app_footer.dart';
+import '../../core/widgets/educational_pattern_background.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
 
+  static const Color _primary = Color(0xFF6C8CF5);
+  static const Color _primaryDark = Color(0xFF4E6FE3);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.navyDark,
-              AppColors.navy,
-            ],
-          ),
+      body: EducationalPatternBackground(
+        baseColor: _primary,
+        gradient: const LinearGradient(
+          colors: [_primary, _primaryDark],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        iconOpacity: 0.06,
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                const SizedBox(height: 36),
-
-                // Logo placeholder (بدّليها لاحقاً بـ Image.asset)
-                Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: Colors.white24),
-                  ),
-                  child: const Icon(Icons.menu_book_rounded,
-                      color: Colors.white, size: 46),
-                ),
-
-                const SizedBox(height: 14),
-                const Text(
-                  'Madrasati',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Select your role to continue',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.75),
-                    fontSize: 14,
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                _RoleCard(
-                  title: 'Teacher',
-                  icon: Icons.person_outline,
-                  onTap: () =>
-                      Navigator.pushNamed(context, AppRoutes.teacherLogin),
-                ),
-                const SizedBox(height: 14),
-                _RoleCard(
-                  title: 'Student',
-                  icon: Icons.school_outlined,
-                  onTap: () =>
-                      Navigator.pushNamed(context, AppRoutes.studentLogin),
-                ),
-
-                const Spacer(),
-                Text(
-                  'v1.0',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.45),
-                    fontSize: 12,
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: TweenAnimationBuilder<double>(
+                    duration: const Duration(milliseconds: 700),
+                    tween: Tween(begin: 0, end: 1),
+                    builder: (context, value, child) {
+                      return Opacity(
+                        opacity: value,
+                        child: Transform.translate(
+                          offset: Offset(0, 32 * (1 - value)),
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 24),
+                          _ProfessionalHeader(),
+                          const SizedBox(height: 48),
+                          _RoleCard(
+                            title: 'School Administration',
+                            icon: Icons.admin_panel_settings_rounded,
+                            route: '/adminLogin',
+                          ),
+                          const SizedBox(height: 14),
+                          _RoleCard(
+                            title: 'Teacher',
+                            icon: Icons.school_rounded,
+                            route: '/teacherLogin',
+                          ),
+                          const SizedBox(height: 14),
+                          _RoleCard(
+                            title: 'Parent / Student',
+                            icon: Icons.person_rounded,
+                            route: '/studentLogin',
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
-              ],
+              ),
             ),
+              const AppFooter(professional: true),
+            ],
           ),
         ),
       ),
@@ -92,15 +80,73 @@ class RoleSelectionScreen extends StatelessWidget {
   }
 }
 
+class _ProfessionalHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 88,
+          height: 88,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.14),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.white.withOpacity(0.35),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.school_rounded,
+            color: Colors.white,
+            size: 44,
+          ),
+        ),
+        const SizedBox(height: 24),
+        const Text(
+          'Madrasati',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            letterSpacing: 1.6,
+            height: 1.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Choose how to continue',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: Colors.white.withOpacity(0.88),
+            letterSpacing: 0.3,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _RoleCard extends StatelessWidget {
+  static const Color _accent = Color(0xFF6C8CF5);
+
   final String title;
   final IconData icon;
-  final VoidCallback onTap;
+  final String route;
 
   const _RoleCard({
     required this.title,
     required this.icon,
-    required this.onTap,
+    required this.route,
   });
 
   @override
@@ -108,47 +154,59 @@ class _RoleCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        onTap: () => Navigator.pushNamed(context, route),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.8),
+              width: 1,
+            ),
             boxShadow: [
               BoxShadow(
-                blurRadius: 18,
-                spreadRadius: 0,
-                offset: const Offset(0, 10),
-                color: Colors.black.withOpacity(0.12),
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Row(
             children: [
               Container(
-                width: 46,
-                height: 46,
+                width: 52,
+                height: 52,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.aquaSoft,
+                  color: _accent.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.aquaBorder),
                 ),
-                child: Icon(icon, color: AppColors.navyDark),
+                child: Icon(icon, color: _accent, size: 26),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 18),
               Expanded(
                 child: Text(
                   title,
                   style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.navyDark,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1D26),
+                    letterSpacing: 0.2,
                   ),
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded,
-                  color: AppColors.navyDark),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: Colors.grey.shade400,
+              ),
             ],
           ),
         ),

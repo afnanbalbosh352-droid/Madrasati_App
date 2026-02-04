@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "records",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "studentAuthUid", "order": "ASCENDING" },
+        { "fieldPath": "dateKey", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
