@@ -44,37 +44,38 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDNnjOPyLsaqbAMfhc65iEOdZ9X0Frf7WQ',
-    appId: '1:594989544918:web:1283f71058300d5eb4e077',
-    messagingSenderId: '594989544918',
-    projectId: 'madrasatifinal',
-    authDomain: 'madrasatifinal.firebaseapp.com',
-    storageBucket: 'madrasatifinal.firebasestorage.app',
+    apiKey: 'AIzaSyAMqxfmfCrzc1mygTL8PxyHSWNp3uIDTh8',
+    appId: '1:59341988526:web:3f5249519b1898569cc33f',
+    messagingSenderId: '59341988526',
+    projectId: 'madrasati-d0c72',
+    authDomain: 'madrasati-d0c72.firebaseapp.com',
+    storageBucket: 'madrasati-d0c72.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB28Mo1HoRDHTsZ6zsJPWjX5Z1eUcwcv4Q',
-    appId: '1:594989544918:android:01962068189103b4b4e077',
-    messagingSenderId: '594989544918',
-    projectId: 'madrasatifinal',
-    storageBucket: 'madrasatifinal.firebasestorage.app',
+    apiKey: 'AIzaSyDvevcjvARjFAal_tsjHWu8_FoHGGUftvc',
+    appId: '1:59341988526:android:245ab9ca4f7e782a9cc33f',
+    messagingSenderId: '59341988526',
+    projectId: 'madrasati-d0c72',
+    storageBucket: 'madrasati-d0c72.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyASkcSyGve13523FmJ13D6bI0zyjAkUCpY',
-    appId: '1:594989544918:ios:2a42f93f99842451b4e077',
-    messagingSenderId: '594989544918',
-    projectId: 'madrasatifinal',
-    storageBucket: 'madrasatifinal.firebasestorage.app',
+    apiKey: 'AIzaSyCv0cco5PM3kVgNxciR4j-fycwRVDuu4F8',
+    appId: '1:59341988526:ios:e1538c779b3645879cc33f',
+    messagingSenderId: '59341988526',
+    projectId: 'madrasati-d0c72',
+    storageBucket: 'madrasati-d0c72.firebasestorage.app',
     iosBundleId: 'com.example.madrasatiApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyASkcSyGve13523FmJ13D6bI0zyjAkUCpY',
-    appId: '1:594989544918:ios:2a42f93f99842451b4e077',
-    messagingSenderId: '594989544918',
-    projectId: 'madrasatifinal',
-    storageBucket: 'madrasatifinal.firebasestorage.app',
+    apiKey: 'AIzaSyCv0cco5PM3kVgNxciR4j-fycwRVDuu4F8',
+    appId: '1:59341988526:ios:e1538c779b3645879cc33f',
+    messagingSenderId: '59341988526',
+    projectId: 'madrasati-d0c72',
+    storageBucket: 'madrasati-d0c72.firebasestorage.app',
     iosBundleId: 'com.example.madrasatiApp',
   );
+
 }

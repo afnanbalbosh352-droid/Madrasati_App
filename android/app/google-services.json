@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "59341988526",
+    "project_id": "madrasati-d0c72",
+    "storage_bucket": "madrasati-d0c72.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59341988526:android:245ab9ca4f7e782a9cc33f",
+        "android_client_info": {
+          "package_name": "com.example.madrasati_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvevcjvARjFAal_tsjHWu8_FoHGGUftvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

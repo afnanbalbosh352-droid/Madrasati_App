@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // أضفنا هذا السطر للوصول لقاعدة البيانات
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -20,23 +21,49 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
   final passController = TextEditingController();
   bool loading = false;
 
+  // الدالة المعدلة للتحقق من هوية الطالب/ولي الأمر
   Future<void> login() async {
     if (idController.text.isEmpty || passController.text.isEmpty) return;
 
     setState(() => loading = true);
 
     try {
+      // 1. تكوين الإيميل التلقائي بناءً على رقم الهوية المدخل
       final email = "student_${idController.text.trim()}@madrasati.edu";
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      
+      // 2. محاولة تسجيل الدخول عبر Firebase Authentication
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: passController.text.trim(),
       );
+
+      // 3. جلب بيانات المستخدم من Firestore للتأكد من الـ Role
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userCredential.user!.uid)
+          .get();
+
+      if (userDoc.exists && userDoc['role'] == 'student') {
+        // إذا كان الدور "student" (يمثل الطالب وولي الأمر)، ننتقل للوحة التحكم
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/studentDashboard');
+      } else {
+        // إذا حاول مستخدم (مدرس أو أدمن) الدخول من بوابة الطلاب، نرفض دخوله
+        await FirebaseAuth.instance.signOut(); // تسجيل خروج فوري للأمان
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Access Denied: This portal is for Students/Parents only.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } catch (e) {
+      // معالجة أخطاء تسجيل الدخول (كلمة سر خطأ أو إيميل غير موجود)
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/studentDashboard');
-    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Login failed'),
+          content: Text('Login failed: Please check your ID and Password'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -81,7 +108,6 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Lottie.asset(
                                       'assets/animations/student.json',
@@ -89,7 +115,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                                     ),
                                     const SizedBox(height: 10),
                                     const Text(
-                                      'Login as a Parent',
+                                      'Login as a Parent / Student',
                                       style: TextStyle(
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold,
@@ -163,7 +189,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
             ? const SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF6C8CF5)),
+                child: CircularProgressIndicator(strokeWidth: 2, color: _primary),
               )
             : const Text(
                 'Login',

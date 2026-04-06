@@ -21,7 +21,7 @@ import '../../features/teacher/choose_class.dart';
 import '../../features/teacher/edit_assignment_screen.dart';
 import '../../features/teacher/teacher_add_assignments_screen.dart';
 import '../../features/teacher/teacher_assignments_screen.dart';
-
+import '../../features/activities_screen.dart';
 class AppRoutes {
   static Map<String, WidgetBuilder> routes = {
 
@@ -52,5 +52,10 @@ class AppRoutes {
       final doc = ModalRoute.of(context)!.settings.arguments as DocumentSnapshot;
       return EditAssignmentScreen(doc: doc);
     },
+    '/activities': (context) => const ActivitiesScreen(
+          userRole: 'Teacher',
+          canAdd: true,
+        ),
   };
 }
+

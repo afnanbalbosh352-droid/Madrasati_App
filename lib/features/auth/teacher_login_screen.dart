@@ -1,4 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // أضفنا مكتبة الفايرستور للتحقق من الدور
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -20,30 +23,61 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> {
   final passController = TextEditingController();
   bool loading = false;
 
+  // الدالة المعدلة للتحقق من الحساب والدور
   Future<void> login() async {
-    if (idController.text.isEmpty || passController.text.isEmpty) return;
+    if (idController.text.isEmpty || passController.text.isEmpty) {
+      _showSnackBar('Please fill all fields', isError: true);
+      return;
+    }
 
     setState(() => loading = true);
 
     try {
+      // 1. تسجيل الدخول عبر Firebase Auth
       final email = "teacher_${idController.text.trim()}@madrasati.edu";
-
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: passController.text.trim(),
       );
 
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/teacherDashboard');
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed')),
-        );
+      // 2. جلب بيانات المستخدم من Firestore للتأكد من أنه "Teacher"
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users') // تأكدي أن المجموعة في الفايربيس اسمها users
+          .doc(userCredential.user!.uid)
+          .get();
+
+      if (userDoc.exists) {
+        String role = userDoc['role'] ?? ''; // قراءة حقل role من Firestore
+
+        if (role.toLowerCase() == 'teacher') {
+          if (!mounted) return;
+          // تم التحقق بنجاح، ننتقل للداشبورد
+          Navigator.pushReplacementNamed(context, '/teacherDashboard');
+        } else {
+          // إذا كان الحساب موجوداً ولكن ليس لمدرس (طالب مثلاً)
+          await FirebaseAuth.instance.signOut();
+          _showSnackBar('Access Denied: You are not a Teacher.', isError: true);
+        }
+      } else {
+        _showSnackBar('User profile not found in database.', isError: true);
       }
+    } on FirebaseAuthException catch (e) {
+      _showSnackBar(e.message ?? 'Login failed', isError: true);
+    } catch (e) {
+      _showSnackBar('An error occurred. Please try again.', isError: true);
     }
 
     if (mounted) setState(() => loading = false);
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.redAccent : Colors.green,
+      ),
+    );
   }
 
   @override
@@ -81,8 +115,6 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> {
                                 constraints: const BoxConstraints(maxWidth: 400),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Lottie.asset(
                                       'assets/animations/teacher.json',
@@ -98,9 +130,9 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 30),
-                                    _input(Icons.school, 'Teacher ID', idController),
+                                    _input(Icons.badge_outlined, 'Teacher ID / National ID', idController),
                                     const SizedBox(height: 16),
-                                    _input(Icons.lock, 'Password', passController, true),
+                                    _input(Icons.lock_outline_rounded, 'Password', passController, true),
                                     const SizedBox(height: 24),
                                     _button(),
                                   ],
@@ -120,8 +152,7 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> {
                 left: 0,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () =>
-                      Navigator.pushReplacementNamed(context, '/roleSelection'),
+                  onPressed: () => Navigator.pushReplacementNamed(context, '/roleSelection'),
                 ),
               ),
             ],
@@ -131,90 +162,17 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Column(
-      children: [
-        Container(
-          width: 80,
-          height: 80,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.14),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withOpacity(0.35),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.school_rounded,
-            color: Colors.white,
-            size: 40,
-          ),
-        ),
-        const SizedBox(height: 20),
-        const Text(
-          'Login as a Teacher',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFormCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          _input(Icons.badge_outlined, 'National ID', idController),
-          const SizedBox(height: 16),
-          _input(Icons.lock_outline_rounded, 'Password', passController, true),
-          const SizedBox(height: 24),
-          _button(),
-        ],
-      ),
-    );
-  }
-
-  Widget _input(IconData icon, String hint, TextEditingController c,
-      [bool ob = false]) {
+  Widget _input(IconData icon, String hint, TextEditingController c, [bool ob = false]) {
     return TextField(
       controller: c,
       obscureText: ob,
+      style: const TextStyle(color: Colors.black87),
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: _primary, size: 22),
         hintText: hint,
+        hintStyle: const TextStyle(color: Colors.grey),
         filled: true,
-        fillColor: const Color(0xFFF2F4F8),
+        fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -226,28 +184,24 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> {
   Widget _button() {
     return SizedBox(
       width: double.infinity,
-      height: 52,
+      height: 54,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: _primary,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          backgroundColor: Colors.white,
+          foregroundColor: _primaryDark,
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
         onPressed: loading ? null : login,
         child: loading
             ? const SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2, color: _primaryDark),
               )
             : const Text(
                 'Login',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               ),
       ),
     );

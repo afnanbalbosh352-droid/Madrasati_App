@@ -1,6 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../../core/widgets/app_footer.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -12,16 +13,18 @@ class AdminDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // المصفوفة المحدثة تحتوي الآن على 10 عناصر بدلاً من 9
     final items = const [
-      _AdminDashboardItem("Teachers", Icons.person_rounded),
-      _AdminDashboardItem("Students", Icons.school_rounded),
-      _AdminDashboardItem("Classes", Icons.class_rounded),
-      _AdminDashboardItem("Attendance", Icons.event_available_rounded),
-      _AdminDashboardItem("Assignments", Icons.assignment_rounded),
-      _AdminDashboardItem("Announcements", Icons.campaign_rounded),
-      _AdminDashboardItem("Reports", Icons.bar_chart_rounded),
-      _AdminDashboardItem("Settings", Icons.settings_rounded),
-      _AdminDashboardItem("Profile", Icons.account_circle_rounded),
+      _AdminDashboardItem("Teachers", Icons.person_rounded, '/teachers'),
+      _AdminDashboardItem("Students", Icons.school_rounded, '/students'),
+      _AdminDashboardItem("Classes", Icons.class_rounded, '/classes'),
+      _AdminDashboardItem("Attendance", Icons.event_available_rounded, '/attendance'),
+      _AdminDashboardItem("Assignments", Icons.assignment_rounded, '/assignments'),
+      _AdminDashboardItem("Announcements", Icons.campaign_rounded, '/announcements'),
+      _AdminDashboardItem("Activities", Icons.local_activity_rounded, '/activities'), // الفيتشر الجديدة هنا
+      _AdminDashboardItem("Reports", Icons.bar_chart_rounded, '/reports'),
+      _AdminDashboardItem("Settings", Icons.settings_rounded, '/settings'),
+      _AdminDashboardItem("Profile", Icons.account_circle_rounded, '/profile'),
     ];
 
     return Scaffold(
@@ -111,7 +114,7 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) => items[index],
-                childCount: items.length,
+                childCount: items.length, // سيقوم ببناء 10 عناصر تلقائياً
               ),
             ),
           ),
@@ -185,8 +188,9 @@ class AdminDashboardScreen extends StatelessWidget {
 class _AdminDashboardItem extends StatelessWidget {
   final String title;
   final IconData icon;
+  final String routeName; // أضفت مسار التنقل هنا
 
-  const _AdminDashboardItem(this.title, this.icon);
+  const _AdminDashboardItem(this.title, this.icon, this.routeName);
 
   static const Color _primary = Color(0xFF6C8CF5);
   static const Color _primaryDark = Color(0xFF4E6FE3);
@@ -198,7 +202,12 @@ class _AdminDashboardItem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          // التنقل التلقائي عند الضغط
+          if (routeName.isNotEmpty) {
+             Navigator.pushNamed(context, routeName);
+          }
+        },
         borderRadius: BorderRadius.circular(18),
         splashColor: _primary.withOpacity(0.12),
         highlightColor: _primary.withOpacity(0.06),
