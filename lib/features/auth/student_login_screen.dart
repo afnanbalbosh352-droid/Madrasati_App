@@ -28,25 +28,22 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
     setState(() => loading = true);
 
     try {
+      /*
       // 1. تكوين الإيميل التلقائي بناءً على رقم الهوية المدخل
       final email = "student_${idController.text.trim()}@madrasati.edu";
-      /*
+      
       // 2. محاولة تسجيل الدخول عبر Firebase Authentication
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: passController.text.trim(),
       );
 */
-   if (email.isNotEmpty && password.isNotEmpty) {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => HomePage()),
-  );
-} else {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Please enter email and password")),
-  );
-}
+      
+      Navigator.pushReplacement(
+  context,
+  MaterialPageRoute(builder: (context) => HomePage()),
+);
+
 }
       // 3. جلب بيانات المستخدم من Firestore للتأكد من الـ Role
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
