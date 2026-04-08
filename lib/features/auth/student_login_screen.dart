@@ -37,15 +37,10 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
         password: passController.text.trim(),
       );
 */
-      if (email.isNotEmpty && password.isNotEmpty) {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => HomePage()),
-  );
-} else {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Please enter email and password")),
-  );
+    Navigator.pushReplacement(
+  context,
+  MaterialPageRoute(builder: (context) => HomePage()),
+);
 }
       // 3. جلب بيانات المستخدم من Firestore للتأكد من الـ Role
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
