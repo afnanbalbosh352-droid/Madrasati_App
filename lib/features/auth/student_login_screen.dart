@@ -20,7 +20,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
   final idController = TextEditingController();
   final passController = TextEditingController();
   bool loading = false;
-
+/*
   // الدالة المعدلة للتحقق من هوية الطالب/ولي الأمر
   Future<void> login() async {
     if (idController.text.isEmpty || passController.text.isEmpty) return;
@@ -28,7 +28,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
     setState(() => loading = true);
 
     try {
-      /*
+      
       // 1. تكوين الإيميل التلقائي بناءً على رقم الهوية المدخل
       final email = "student_${idController.text.trim()}@madrasati.edu";
       
@@ -39,11 +39,19 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
       );
 */
       
-      Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(builder: (context) => HomePage()),
-);
+     final email = "student_${idController.text.trim()}@madrasati.edu";
 
+if (idController.isNotEmpty && passController.text.isNotEmpty) {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => StudentDashboardScreen()), // عدّل الاسم حسب مشروعك
+  );
+} else {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Enter ID and Password")),
+  );
+}
+/*
 }
       // 3. جلب بيانات المستخدم من Firestore للتأكد من الـ Role
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
@@ -79,7 +87,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
 
     if (mounted) setState(() => loading = false);
   }
-
+*/
   @override
   void dispose() {
     idController.dispose();
