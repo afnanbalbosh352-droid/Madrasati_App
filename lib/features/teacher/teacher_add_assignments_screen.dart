@@ -37,6 +37,9 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
     titleCtrl.clear();
     descCtrl.clear();
 
+    if (!mounted) {
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Assignment submitted successfully')),
     );

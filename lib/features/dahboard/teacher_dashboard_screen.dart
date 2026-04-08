@@ -185,10 +185,14 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                   Icons.logout_rounded,
                   'Logout',
                   color: Colors.red,
-                  onTap: () async {
-                    await FirebaseAuth.instance.signOut();
-                    Navigator.pushNamedAndRemoveUntil(context, '/roleSelection', (route) => false);
-                  },
+                 onTap: () async {
+  
+                final navigator = Navigator.of(context);
+  
+                  await FirebaseAuth.instance.signOut();
+  
+              navigator.pushNamedAndRemoveUntil('/roleSelection', (route) => false);
+              },
                 ),
               ],
             ),
