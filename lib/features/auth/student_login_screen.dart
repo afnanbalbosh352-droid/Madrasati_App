@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // أضفنا هذا السطر للوصول لقاعدة البيانات
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -20,74 +20,53 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
   final idController = TextEditingController();
   final passController = TextEditingController();
   bool loading = false;
-/*
-  // الدالة المعدلة للتحقق من هوية الطالب/ولي الأمر
+
   Future<void> login() async {
-    if (idController.text.isEmpty || passController.text.isEmpty) return;
+    if (idController.text.isEmpty || passController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all fields")),
+      );
+      return;
+    }
 
     setState(() => loading = true);
 
     try {
-      
-      // 1. تكوين الإيميل التلقائي بناءً على رقم الهوية المدخل
       final email = "student_${idController.text.trim()}@madrasati.edu";
-      
-      // 2. محاولة تسجيل الدخول عبر Firebase Authentication
+
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: passController.text.trim(),
       );
-*/
-      
-     final email = "student_${idController.text.trim()}@madrasati.edu";
 
-if (idController.isNotEmpty && passController.text.isNotEmpty) {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => StudentDashboardScreen()), // عدّل الاسم حسب مشروعك
-  );
-} else {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Enter ID and Password")),
-  );
-}
-/*
-}
-      // 3. جلب بيانات المستخدم من Firestore للتأكد من الـ Role
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('Users')
           .doc(userCredential.user!.uid)
           .get();
 
       if (userDoc.exists && userDoc['role'] == 'student') {
-        // إذا كان الدور "student" (يمثل الطالب وولي الأمر)، ننتقل للوحة التحكم
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/studentDashboard');
       } else {
-        // إذا حاول مستخدم (مدرس أو أدمن) الدخول من بوابة الطلاب، نرفض دخوله
-        await FirebaseAuth.instance.signOut(); // تسجيل خروج فوري للأمان
+        await FirebaseAuth.instance.signOut();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Access Denied: This portal is for Students/Parents only.'),
+            content: Text('Access Denied: This portal is for Students only.'),
             backgroundColor: Colors.redAccent,
           ),
         );
       }
     } catch (e) {
-      // معالجة أخطاء تسجيل الدخول (كلمة سر خطأ أو إيميل غير موجود)
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login failed: Please check your ID and Password'),
-          behavior: SnackBarBehavior.floating,
-        ),
+        const SnackBar(content: Text('Login failed: Check ID and Password')),
       );
     }
 
     if (mounted) setState(() => loading = false);
   }
-*/
+
   @override
   void dispose() {
     idController.dispose();
@@ -161,8 +140,7 @@ if (idController.isNotEmpty && passController.text.isNotEmpty) {
                 left: 0,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () =>
-                      Navigator.pushReplacementNamed(context, '/roleSelection'),
+                  onPressed: () => Navigator.pushReplacementNamed(context, '/roleSelection'),
                 ),
               ),
             ],
@@ -172,8 +150,7 @@ if (idController.isNotEmpty && passController.text.isNotEmpty) {
     );
   }
 
-  Widget _input(IconData icon, String hint, TextEditingController c,
-      [bool ob = false]) {
+  Widget _input(IconData icon, String hint, TextEditingController c, [bool ob = false]) {
     return TextField(
       controller: c,
       obscureText: ob,
